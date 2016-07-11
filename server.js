@@ -5,6 +5,11 @@ var express = require('express');
 // generate a new express app and call it 'app'
 var app = express();
 
+var db = require('./models');
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));
+
 // serve static files from public folder
 app.use(express.static(__dirname + '/public'));
 
@@ -58,6 +63,7 @@ app.get('/', function homepage (req, res) {
 });
 
 
+
 /*
  * JSON API Endpoints
  */
@@ -74,8 +80,22 @@ app.get('/api', function api_index (req, res){
 });
 
 app.get('/api/albums', function album_index(req, res){
+  db.Album.find({}, function(err, albums) {
+  res.json(albums);
+});
+});
 
-})
+
+app.post('/api/albums', function album_post(req, res){
+  console.log('body', req.body);
+  // create new album with form data (`req.body`)
+  var newAlbum = new db.Album(req.body);
+  // add newAlbum to database
+  newAlbum.save(function(err, album){
+    if (err) { return console.log("create error: " + err); }
+    res.json(album);
+});
+  });
 
 /**********
  * SERVER *

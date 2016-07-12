@@ -86,17 +86,13 @@ app.use(express.static(__dirname + '/public'));
 });
 
 app.get('/api/albums/:id', function albumShow(req, res) {
-  console.log('requested album id=', req.params.id);
   db.Album.findOne({_id: req.params.id}, function(err, album) {
     res.json(album);
   });
 });
 
  app.post('/api/albums', function album_post(req, res){
-  console.log('body', req.body);
-  // create new album with form data (`req.body`)
   var newAlbum = new db.Album(req.body);
-  // add newAlbum to database
   newAlbum.save(function(err, album){
     if (err) { return console.log("create error: " + err); }
     res.json(album);
@@ -106,7 +102,6 @@ app.get('/api/albums/:id', function albumShow(req, res) {
 
 
 app.post('/api/albums/:albumId/songs', function songsCreate(req, res) {
-  console.log('body', req.body);
   db.Album.findOne({_id: req.params.albumId}, function(err, album) {
     if (err) { console.log('error', err); }
 
@@ -114,9 +109,15 @@ app.post('/api/albums/:albumId/songs', function songsCreate(req, res) {
     album.songs.push(song);
     album.save(function(err, savedAlbum) {
       if (err) { console.log('error', err); }
-      console.log('album with new song saved:', savedAlbum);
       res.json(song);
     });
+  });
+});
+
+app.delete('/api/albums/:id', function deleteAlbum(req, res) {
+  db.Album.remove({_id: req.params.id}, function(err) {
+    if (err) { return console.log(err); }
+    res.status(200).send(); 
   });
 });
 
